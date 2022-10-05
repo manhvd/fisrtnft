@@ -13,19 +13,19 @@ contract ERC721 {
     ///  reaffirmed. The zero address indicates there is no approved address.
     ///  When a Transfer event emits, this also indicates that the approved
     ///  address for that NFT (if any) is reset to none.
-    event Approval(address indexed _owner, address indexed _approved, uint256 indexed _tokenId);
+    event Approval(address indexed _owners, address indexed _approved, uint256 indexed _tokenId);
 
     /// @dev This emits when an operator is enabled or disabled for an owner.
     ///  The operator can manage all NFTs of the owner.
-    event ApprovalForAll(address indexed _owner, address indexed _operator, bool _approved);
+    event ApprovalForAll(address indexed _owners, address indexed _operator, bool _approved);
 
     /// @notice Count all NFTs assigned to an owner
     /// @dev NFTs assigned to the zero address are considered invalid, and this
     ///  function throws for queries about the zero address.
-    /// @param _owner An address for whom to query the balance
-    /// @return The number of NFTs owned by `_owner`, possibly zero
+    /// @param _owners An address for whom to query the balance
+    /// @return The number of NFTs owned by `_owners`, possibly zero
     mapping(address => uint256) internal _balances;
-    mapping(uint256 => address) internal _owner;
+    mapping(uint256 => address) internal _owners;
     mapping(uint256 => address) internal _tokenApprovals;
     mapping(address => mapping(address => bool)) private _operatorAppprove;
     function balanceOf(address owner) external view returns (uint256){
@@ -40,7 +40,7 @@ contract ERC721 {
     /// @return The address of the owner of the NFT
     
     function ownerOf(uint256 tokenId) public view returns (address){
-        address owner = _owner[tokenId];
+        address owner = _owners[tokenId];
          require(owner != address(0), "Wrong address");
          return owner;
     }
@@ -96,12 +96,12 @@ function _checkOnERC721Recived() private pure returns(uint256){
             to != address(0), "Address to wrong"
         );
         require(
-            _owner[tokenId] != address(0), "Token does not exist"
+            _owners[tokenId] != address(0), "Token does not exist"
         );
         approve(address(0),tokenId);
         _balances[from] -=1;
         _balances[from] +=1;
-        _owner[tokenId] = to;
+        _owners[tokenId] = to;
         emit Transfer(from, to, tokenId);
     }
 
@@ -136,14 +136,14 @@ function _checkOnERC721Recived() private pure returns(uint256){
     /// @param _tokenId The NFT to find the approved address for
     /// @return The approved address for this NFT, or the zero address if there is none
     function getApproved(uint256 tokenId) public view returns (address){
-        require(_owner[tokenId] != address(0),"Token does not exist");
+        require(_owners[tokenId] != address(0),"Token does not exist");
         _tokenApprovals[tokenId];
     }
 
     /// @notice Query if an address is an authorized operator for another address
-    /// @param _owner The address that owns the NFTs
+    /// @param _owners The address that owns the NFTs
     /// @param _operator The address that acts on behalf of the owner
-    /// @return True if `_operator` is an approved operator for `_owner`, false otherwise
+    /// @return True if `_operator` is an approved operator for `_owners`, false otherwise
     function isApprovedForAll(address owner, address operator) public view returns (bool){
         return _operatorAppprove[owner][operator];
     }
